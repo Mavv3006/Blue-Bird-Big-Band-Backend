@@ -28,9 +28,11 @@ Route::prefix('concerts')->group(function () {
     Route::get('past', [ConcertsController::class, 'past']);
 });
 
-Route::prefix('download')->group(function () {
-    Route::get('recording', [ConcertsRecordingsController::class, 'show']);
-    Route::get('recordings', [ConcertsRecordingsController::class, 'index']);
-    Route::get('song', [SongsController::class, 'show']);
-    Route::get('songs', [SongsController::class, 'index']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('download')->group(function () {
+        Route::get('recording', [ConcertsRecordingsController::class, 'show']);
+        Route::get('recordings', [ConcertsRecordingsController::class, 'index']);
+        Route::get('song', [SongsController::class, 'show']);
+        Route::get('songs', [SongsController::class, 'index']);
+    });
 });
