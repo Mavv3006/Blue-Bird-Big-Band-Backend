@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
     /**
-     * Handle the incoming request.
+     * Loggs the user in by creating an access token.
      *
      * @param Request $request
      * @return JsonResponse
@@ -41,5 +41,17 @@ class AuthController extends Controller
             ];
             return response()->json($content, 400);
         }
+    }
+
+    /**
+     * Deletes the access token which was used to authenticate this request.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function logout(Request $request): JsonResponse
+    {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json(['message' => 'Successfully logged out']);
     }
 }
