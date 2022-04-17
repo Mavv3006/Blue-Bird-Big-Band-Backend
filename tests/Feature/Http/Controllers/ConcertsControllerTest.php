@@ -12,9 +12,9 @@ class ConcertsControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    private $past_route = 'api/concerts/past';
-    private $upcoming_route = 'api/concerts/upcoming';
-    private $all_route = 'api/concerts/all';
+    private string $past_route = 'api/concerts/past';
+    private string $upcoming_route = 'api/concerts/upcoming';
+    private string $all_route = 'api/concerts/all';
 
     public function test_past_concerts_with_concerts_for_in_the_future()
     {

@@ -26,7 +26,7 @@ class SongsControllerTest extends TestCase
         Song::factory()->create(['file_name' => $file_name]);
 
         $this
-            ->get($this->song_route . '?file_name=' . $file_name, /*$this->getLoginHeader()*/)
+            ->get($this->song_route . '?file_name=' . $file_name, $this->auth_header())
             ->assertStatus(200);
 
         Storage::shouldReceive('disk')
@@ -46,7 +46,7 @@ class SongsControllerTest extends TestCase
         SongType::factory()->create();
         Song::factory()->create(['file_name' => $file_name]);
 
-        $response = $this->json('GET', $this->song_route, ['file_name' => $file_name], /*$this->getLoginHeader()*/);
+        $response = $this->json('GET', $this->song_route, ['file_name' => $file_name], $this->auth_header());
 
         $response
             ->assertStatus(400)
@@ -61,7 +61,7 @@ class SongsControllerTest extends TestCase
         SongType::factory()->create();
         Song::factory()->create(['file_name' => $file_name]);
 
-        $this->get($this->song_route . '?file_name=bla_bla', /*$this->getLoginHeader()*/)
+        $this->get($this->song_route . '?file_name=bla_bla', $this->auth_header())
             ->assertStatus(404)
             ->assertHeader('content-type', 'application/json')
             ->assertJsonStructure(['error']);
@@ -70,10 +70,10 @@ class SongsControllerTest extends TestCase
     public function test_auth()
     {
         $this
-            ->get($this->song_route . '?file_name=test.mp3')
+            ->get($this->song_route . '?file_name=test.mp3', $this->accept_header())
             ->assertStatus(401)
             ->assertHeader('content-type', 'application/json')
-            ->assertJsonStructure(['error']);
+            ->assertJsonStructure(['message']);
     }
 
     public function test_no_query_parameter()
@@ -84,7 +84,7 @@ class SongsControllerTest extends TestCase
         Song::factory()->create(['file_name' => $file_name]);
 
         $this
-            ->get($this->song_route, /*$this->getLoginHeader()*/)
+            ->get($this->song_route, $this->auth_header())
             ->assertStatus(400)
             ->assertJsonStructure(['error', 'message']);
     }
@@ -96,7 +96,7 @@ class SongsControllerTest extends TestCase
         File::create($file_name, 100)->storeAs('songs', $file_name, 'local');
 
         $this
-            ->get($this->song_route . '?file_name=' . $file_name, /*$this->getLoginHeader()*/)
+            ->get($this->song_route . '?file_name=' . $file_name, $this->auth_header())
             ->assertStatus(404);
     }
 
@@ -116,7 +116,7 @@ class SongsControllerTest extends TestCase
         Song::factory()->count(3)->create();
 
         $this
-            ->get($this->songs_route, /*$this->getLoginHeader()*/)
+            ->get($this->songs_route, $this->auth_header())
             ->assertStatus(200)
             ->assertHeader('content-type', 'application/json')
             ->assertJsonStructure($json_structure);
@@ -125,16 +125,16 @@ class SongsControllerTest extends TestCase
     public function test_all_songs_force_use_auth()
     {
         $this
-            ->get($this->songs_route)
+            ->get($this->songs_route, $this->accept_header())
             ->assertStatus(401)
             ->assertHeader('content-type', 'application/json')
-            ->assertJsonStructure(['error']);
+            ->assertJsonStructure(['message']);
     }
 
     public function test_all_songs_no_songs()
     {
         $this
-            ->get($this->songs_route, /*$this->getLoginHeader()*/)
+            ->get($this->songs_route, $this->auth_header())
             ->assertStatus(200)
             ->assertHeader('content-type', 'application/json')
             ->assertJsonStructure(['*' => []]);
