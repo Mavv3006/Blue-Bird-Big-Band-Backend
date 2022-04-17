@@ -11,7 +11,7 @@ use Illuminate\Validation\ValidationException;
 class AuthController extends Controller
 {
     /**
-     * Loggs the user in by creating an access token.
+     * Creates the Access Token for the given username.
      *
      * @param Request $request
      * @return JsonResponse
