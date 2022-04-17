@@ -4,7 +4,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ConcertsController;
 use App\Http\Controllers\ConcertsRecordingsController;
 use App\Http\Controllers\SongsController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,11 +17,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-
 Route::prefix('concerts')->group(function () {
     Route::get('all', [ConcertsController::class, 'all']);
     Route::get('upcoming', [ConcertsController::class, 'upcoming']);
@@ -31,13 +25,12 @@ Route::prefix('concerts')->group(function () {
 
 Route::prefix('auth')->group(function () {
     Route::post('login', [AuthController::class, 'login']);
+    Route::post('logout', [AuthController::class, 'logout']);
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::prefix('download')->group(function () {
-        Route::get('recording', [ConcertsRecordingsController::class, 'show']);
-        Route::get('recordings', [ConcertsRecordingsController::class, 'index']);
-        Route::get('song', [SongsController::class, 'show']);
-        Route::get('songs', [SongsController::class, 'index']);
-    });
+Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'download'], function () {
+    Route::get('recording', [ConcertsRecordingsController::class, 'show']);
+    Route::get('recordings', [ConcertsRecordingsController::class, 'index']);
+    Route::get('song', [SongsController::class, 'show']);
+    Route::get('songs', [SongsController::class, 'index']);
 });
