@@ -25,7 +25,9 @@ Route::prefix('concerts')->group(function () {
 
 Route::prefix('auth')->group(function () {
     Route::post('login', [AuthController::class, 'login'])->name('login');
-    Route::post('logout', [AuthController::class, 'logout']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('logout', [AuthController::class, 'logout']);
+    });
 });
 
 Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'download'], function () {

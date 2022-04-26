@@ -12,6 +12,7 @@ class AuthControllerTest extends TestCase
     use RefreshDatabase;
 
     private string $login_route = 'api/auth/login';
+    private string $logout_route = 'api/auth/logout';
 
     public function test_login_twice_same_user()
     {
@@ -20,9 +21,6 @@ class AuthControllerTest extends TestCase
 
         $response_user_1 = $this->post($this->login_route, ['name' => 'test', 'password' => 'test']);
         $response_user_2 = $this->post($this->login_route, ['name' => 'test', 'password' => 'test']);
-
-        var_dump('User 1', $response_user_1->baseResponse->content());
-        var_dump('User 2', $response_user_2->baseResponse->content());
 
         $response_user_1->assertStatus(200);
         $response_user_2->assertStatus(200);
@@ -75,4 +73,12 @@ class AuthControllerTest extends TestCase
             ->assertStatus(400)
             ->assertJsonStructure(['error', 'message']);
     }
+
+//    public function test_logout()
+//    {
+//        $this
+//            ->post($this->logout_route, $this->auth_header())
+//            ->assertStatus(200)
+//            ->assertJson(["message" => "Successfully logged out"]);
+//    }
 }
