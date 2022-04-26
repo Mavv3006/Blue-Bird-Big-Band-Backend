@@ -58,6 +58,8 @@ class ConcertsRecordingsControllerTest extends TestCase
 
     public function test_auth()
     {
+//        $this->withoutExceptionHandling();
+
         $this
             ->get($this->recording_path . '?file_name=test.mp3', $this->accept_header())
             ->assertStatus(401)
