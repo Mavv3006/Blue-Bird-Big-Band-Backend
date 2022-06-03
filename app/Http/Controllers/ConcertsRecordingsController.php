@@ -61,7 +61,7 @@ class ConcertsRecordingsController extends Controller
         Log::info("[ConcertRecordingsController] Requesting to download file with name '" . $file_name . "'");
 
         $file_path = 'recordings/' . $file_name;
-        if (!Storage::exists($file_path) || $file_name == ".gitkeep") {
+        if (!Storage::exists($file_path) || $file_name == ".gitkeep" || $file_name == '.gitignore') {
             Log::warning("[ConcertRecordingsController] The file does not exist");
             return response()->json(['error' => "File not found"], status: 404);
         }
