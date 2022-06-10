@@ -50,6 +50,9 @@
         ],
         "serve": [
             "php -S localhost:8080 -t public/"
+        ],
+        "add-prod-user": [
+            "php artisan db:seed --env=prod --class=RegisterUserSeeder"
         ]
     },
     "extra": {
