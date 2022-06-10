@@ -10,11 +10,14 @@ class SongType extends Model
 {
     use HasFactory;
 
-    public $timestamps = false;
-
     protected $fillable = [
         'type',
         'folder_name'
+    ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at'
     ];
 
     public function songs(): HasMany

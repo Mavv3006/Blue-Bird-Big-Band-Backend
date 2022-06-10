@@ -51,8 +51,15 @@
         "serve": [
             "php -S localhost:8080 -t public/"
         ],
-        "add-prod-user": [
+        "prod-add-user": [
             "php artisan db:seed --env=prod --class=RegisterUserSeeder"
+        ],
+        "prod-reset-db": [
+            "@composer prod-migrate-fresh",
+            "php artisan db:seed --env=prod --class=ProdSeeder"
+        ],
+        "prod-migrate-fresh": [
+            "php artisan migrate:fresh --env=prod"
         ]
     },
     "extra": {
