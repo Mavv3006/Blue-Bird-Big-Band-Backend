@@ -15,3 +15,5 @@ yarn-error.log
 /.idea
 /.vscode
 /dist
+
+database/seeders/RegisterUserSeeder.php
