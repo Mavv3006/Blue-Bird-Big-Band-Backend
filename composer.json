@@ -49,7 +49,7 @@
             "@php artisan key:generate --ansi"
         ],
         "serve": [
-            "php -S localhost:8080 -t public/"
+            "php artisan serve"
         ],
         "prod-add-user": [
             "php artisan db:seed --env=prod --class=RegisterUserSeeder"
