@@ -15,6 +15,7 @@ class ConcertsControllerTest extends TestCase
     private string $past_route = 'api/concerts/past';
     private string $upcoming_route = 'api/concerts/upcoming';
     private string $all_route = 'api/concerts/all';
+    private string $store_route = 'api/concert';
 
     public function test_past_concerts_with_concerts_for_in_the_future()
     {
@@ -123,6 +124,21 @@ class ConcertsControllerTest extends TestCase
         $this
             ->get($this->past_route)
             ->assertJsonStructure(['*' => []]);
+    }
+
+    public function test_storing_concert()
+    {
+        $data = [
+            'date' => 'test',
+            'start_time' => 'test',
+            'end_time' => 'test',
+            'band_name' => 'test',
+            'location' => ['street' => 'test', 'number' => 'test', 'plz' => 10002, 'name' => 'test',],
+            'description' => ['place' => 'test', 'organizer' => 'test',],
+        ];
+        $this
+            ->post($this->store_route, $data, $this->auth_header())
+            ->assertStatus(201);
     }
 
     private function generate_future_concert(): void
