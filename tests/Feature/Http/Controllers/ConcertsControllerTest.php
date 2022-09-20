@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\Http\Controllers;
 
+use App\Models\Band;
 use App\Models\Concert;
+use App\Models\Place;
 use Carbon\Carbon;
 use DateTime;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -129,16 +131,93 @@ class ConcertsControllerTest extends TestCase
     public function test_storing_concert()
     {
         $data = [
-            'date' => 'test',
-            'start_time' => 'test',
-            'end_time' => 'test',
+            'date' => '2022-08-12',
+            'start_time' => '10:00:00',
+            'end_time' => '12:43:12',
             'band_name' => 'test',
-            'location' => ['street' => 'test', 'number' => 'test', 'plz' => 10002, 'name' => 'test',],
-            'description' => ['place' => 'test', 'organizer' => 'test',],
+            'location' => [
+                'street' => 'test',
+                'number' => 'test',
+                'plz' => 10002,
+                'name' => 'test',
+            ],
+            'description' => [
+                'place' => 'test',
+                'organizer' => 'test',
+            ],
         ];
+
         $this
             ->post($this->store_route, $data, $this->auth_header())
-            ->assertStatus(201);
+            ->assertCreated()
+            ->assertJsonStructure(['message']);
+        $this
+            ->assertDatabaseCount(Concert::class, 1)
+            ->assertDatabaseCount(Band::class, 1)
+            ->assertDatabaseCount(Place::class, 1);
+    }
+
+    public function test_storing_concert2()
+    {
+        $band = Band::create(['name' => 'test']);
+
+        $data = [
+            'date' => '2022-08-12',
+            'start_time' => '10:00:00',
+            'end_time' => '12:43:12',
+            'band_name' => $band->name,
+            'location' => [
+                'street' => 'test',
+                'number' => 'test',
+                'plz' => 10002,
+                'name' => 'test',
+            ],
+            'description' => [
+                'place' => 'test',
+                'organizer' => 'test',
+            ],
+        ];
+
+        $this
+            ->post($this->store_route, $data, $this->auth_header())
+            ->assertCreated()
+            ->assertJsonStructure(['message']);
+        $this
+            ->assertDatabaseCount(Concert::class, 1)
+            ->assertDatabaseCount(Band::class, 1)
+            ->assertDatabaseCount(Place::class, 1);
+    }
+
+    public function test_storing_concert3()
+    {
+        $band = Band::create(['name' => 'test']);
+        $location = Place::create(['plz' => 10002, 'name' => 'test']);
+
+        $data = [
+            'date' => '2022-08-12',
+            'start_time' => '10:00:00',
+            'end_time' => '12:43:12',
+            'band_name' => $band->name,
+            'location' => [
+                'street' => 'test',
+                'number' => 'test',
+                'plz' => $location->plz,
+                'name' => $location->name,
+            ],
+            'description' => [
+                'place' => 'test',
+                'organizer' => 'test',
+            ],
+        ];
+
+        $this
+            ->post($this->store_route, $data, $this->auth_header())
+            ->assertCreated()
+            ->assertJsonStructure(['message']);
+        $this
+            ->assertDatabaseCount(Concert::class, 1)
+            ->assertDatabaseCount(Band::class, 1)
+            ->assertDatabaseCount(Place::class, 1);
     }
 
     private function generate_future_concert(): void
