@@ -17,11 +17,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::prefix('concert')->group(function () {
-    Route::post('', [ConcertsController::class, 'store']);
-});
-
 Route::prefix('concerts')->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('', [ConcertsController::class, 'store']);
+    });
     Route::get('all', [ConcertsController::class, 'all']);
     Route::get('upcoming', [ConcertsController::class, 'upcoming']);
     Route::get('past', [ConcertsController::class, 'past']);

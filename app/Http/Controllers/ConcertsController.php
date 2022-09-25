@@ -46,7 +46,16 @@ class ConcertsController extends Controller
                 'location' => 'array:street,number,plz,name',
                 'location.street' => 'required|string',
                 'location.number' => 'required|string',
-                'location.plz' => 'required|integer|min:10000|max:99999',
+                'location.plz' => [
+                    'required',
+                    'integer',
+                    'min:10000',
+                    'max:99999',
+                    function ($attribute, $value, $fail) {
+                        if (!is_int($value)) {
+                            $fail('The ' . $attribute . ' must be an integer.');
+                        }
+                    }],
                 'location.name' => 'required|string',
                 'description' => 'array:place,organizer',
                 'description.place' => 'required|string',

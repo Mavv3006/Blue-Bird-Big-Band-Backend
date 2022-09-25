@@ -17,7 +17,24 @@ class ConcertsControllerTest extends TestCase
     private string $past_route = 'api/concerts/past';
     private string $upcoming_route = 'api/concerts/upcoming';
     private string $all_route = 'api/concerts/all';
-    private string $store_route = 'api/concert';
+    private string $store_route = 'api/concerts';
+
+    private array $concert_data = [
+        'date' => '2022-08-12',
+        'start_time' => '10:00:00',
+        'end_time' => '12:43:12',
+        'band_name' => 'test',
+        'location' => [
+            'street' => 'test',
+            'number' => 'test',
+            'plz' => 10002,
+            'name' => 'test',
+        ],
+        'description' => [
+            'place' => 'test',
+            'organizer' => 'test',
+        ],
+    ];
 
     public function test_past_concerts_with_concerts_for_in_the_future()
     {
@@ -130,25 +147,12 @@ class ConcertsControllerTest extends TestCase
 
     public function test_storing_concert()
     {
-        $data = [
-            'date' => '2022-08-12',
-            'start_time' => '10:00:00',
-            'end_time' => '12:43:12',
-            'band_name' => 'test',
-            'location' => [
-                'street' => 'test',
-                'number' => 'test',
-                'plz' => 10002,
-                'name' => 'test',
-            ],
-            'description' => [
-                'place' => 'test',
-                'organizer' => 'test',
-            ],
-        ];
-
         $this
-            ->post($this->store_route, $data, $this->auth_header())
+            ->assertDatabaseCount(Concert::class, 0)
+            ->assertDatabaseCount(Band::class, 0)
+            ->assertDatabaseCount(Place::class, 0);
+        $this
+            ->post($this->store_route, $this->concert_data, $this->auth_header())
             ->assertCreated()
             ->assertJsonStructure(['message']);
         $this
@@ -160,64 +164,83 @@ class ConcertsControllerTest extends TestCase
     public function test_storing_concert2()
     {
         $band = Band::create(['name' => 'test']);
-
-        $data = [
-            'date' => '2022-08-12',
-            'start_time' => '10:00:00',
-            'end_time' => '12:43:12',
-            'band_name' => $band->name,
-            'location' => [
-                'street' => 'test',
-                'number' => 'test',
-                'plz' => 10002,
-                'name' => 'test',
-            ],
-            'description' => [
-                'place' => 'test',
-                'organizer' => 'test',
-            ],
-        ];
+        $this->concert_data['band_name'] = $band->name;
 
         $this
-            ->post($this->store_route, $data, $this->auth_header())
-            ->assertCreated()
-            ->assertJsonStructure(['message']);
-        $this
-            ->assertDatabaseCount(Concert::class, 1)
-            ->assertDatabaseCount(Band::class, 1)
-            ->assertDatabaseCount(Place::class, 1);
+            ->post($this->store_route, $this->concert_data, $this->auth_header())
+            ->assertCreated();
     }
 
     public function test_storing_concert3()
     {
         $band = Band::create(['name' => 'test']);
         $location = Place::create(['plz' => 10002, 'name' => 'test']);
-
-        $data = [
-            'date' => '2022-08-12',
-            'start_time' => '10:00:00',
-            'end_time' => '12:43:12',
-            'band_name' => $band->name,
-            'location' => [
-                'street' => 'test',
-                'number' => 'test',
-                'plz' => $location->plz,
-                'name' => $location->name,
-            ],
-            'description' => [
-                'place' => 'test',
-                'organizer' => 'test',
-            ],
-        ];
+        $this->concert_data['band_name'] = $band->name;
+        $this->concert_data['location']['plz'] = $location->plz;
+        $this->concert_data['location']['name'] = $location->name;
 
         $this
-            ->post($this->store_route, $data, $this->auth_header())
-            ->assertCreated()
+            ->post($this->store_route, $this->concert_data, $this->auth_header())
+            ->assertCreated();
+    }
+
+    public function test_auth_for_creating_concerts()
+    {
+        $this
+            ->post($this->store_route, headers: $this->accept_header())
+            ->assertUnauthorized()
             ->assertJsonStructure(['message']);
+    }
+
+    public function test_invalid_date_format()
+    {
+        $date_formats = ['12.08.2022', '12-Aug-2022'];
+        foreach ($date_formats as $date_format) {
+            $this->concert_data['date'] = $date_format;
+            $this
+                ->post($this->store_route, $this->concert_data, $this->auth_header())
+                ->assertStatus(400)
+                ->assertJsonStructure(['error', 'message']);
+        }
+    }
+
+    public function test_invalid_time_format()
+    {
+        $time_formats = ['12:10', '10:12 am', '5:3:1', '12.04.06'];
+        foreach ($time_formats as $time_format) {
+            $this->concert_data['start_time'] = $time_format;
+            $this
+                ->post($this->store_route, $this->concert_data, $this->auth_header())
+                ->assertStatus(400)
+                ->assertJsonStructure(['error', 'message']);
+        }
+        foreach ($time_formats as $time_format) {
+            $this->concert_data['end_time'] = $time_format;
+            $this
+                ->post($this->store_route, $this->concert_data, $this->auth_header())
+                ->assertStatus(400)
+                ->assertJsonStructure(['error', 'message']);
+        }
+    }
+
+    public function test_invalid_plz()
+    {
+        $plzs = [10, 200, 1290923489209348, '12345'];
+        foreach ($plzs as $plz) {
+            $this->concert_data['location']['plz'] = $plz;
+            $this
+                ->post($this->store_route, $this->concert_data, $this->auth_header())
+                ->assertStatus(400)
+                ->assertJsonStructure(['error', 'message']);
+        }
+    }
+
+    public function test_integer_as_string()
+    {
+        $this->concert_data['location']['plz'] = '12345';
         $this
-            ->assertDatabaseCount(Concert::class, 1)
-            ->assertDatabaseCount(Band::class, 1)
-            ->assertDatabaseCount(Place::class, 1);
+            ->post($this->store_route, $this->concert_data, $this->auth_header())
+            ->assertStatus(400);
     }
 
     private function generate_future_concert(): void
