@@ -16,7 +16,7 @@ jobs:
 
       - name: Get Dependencies
         run: |
-          npm install
+          npm i --omit dev --no-audit
           npm run prod
           composer install --optimize-autoloader --no-dev
           php artisan route:cache
