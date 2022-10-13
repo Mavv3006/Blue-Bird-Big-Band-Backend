@@ -14,6 +14,14 @@ jobs:
       - name: 🚚 Get latest code
         uses: actions/checkout@v2
 
+      - name: Get Dependencies
+        run: |
+          npm install
+          npm run prod
+          composer install --optimize-autoloader --no-dev
+          php artisan route:cache
+          php artisan view:cache
+
       - name: 📂 Sync files
         uses: SamKirkland/FTP-Deploy-Action@4.3.2
         with:
