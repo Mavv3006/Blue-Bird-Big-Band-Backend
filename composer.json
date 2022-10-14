@@ -54,6 +54,9 @@
         "prod-add-user": [
             "php artisan db:seed --env=prod --class=RegisterUserSeeder"
         ],
+        "dev-add-user": [
+            "php artisan db:seed --env=dev --class=RegisterUserSeeder"
+        ],
         "prod-reset-db": [
             "@composer prod-migrate-fresh",
             "php artisan db:seed --env=prod --class=ProdSeeder"
